@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+.vs/project5/v16/.suo
+.vs/project5/v16/Browse.VC.db
+.vs/project5/v16/Browse.VC.db-shm
+.vs/project5/v16/Browse.VC.db-wal
+.vs/project5/v16/Browse.VC.opendb
+.vs/project5/v16/ipch/AutoPCH/370925cd206ab33a/OFXCUBEMAP.ipch
+.vs/project5/v16/ipch/AutoPCH/9294a40d4539d95b/MAIN.ipch
+.vs/project5/v16/Solution.VC.db
+.vs/project5/v16/Solution.VC.db-shm
+.vs/project5/v16/Solution.VC.db-wal
+.vs/slnx.sqlite
+addons.make
