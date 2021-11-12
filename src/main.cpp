@@ -2,20 +2,17 @@
 #include "ofApp.h"
 
 //========================================================================
-int main() {
-	ofGLWindowSettings glSettings;
-	glSettings.setSize(720, 480);
-	glSettings.windowMode = OF_WINDOW;
-	glSettings.setGLVersion(4, 1);
-	ofCreateWindow(glSettings);
+int main( )
+{
+	ofGLWindowSettings glSettings {};
+    glSettings.setSize(1024, 768);
+    glSettings.windowMode = OF_WINDOW;
+    glSettings.setGLVersion(4, 1); // Use OpenGL 4.1
+    auto window { ofCreateWindow(glSettings) };
 
-	/*auto window{ ofGetCurrentWindow() };
-	glfwSetInputMode(dynamic_pointer_cast<ofAppGLFWWindow>(window)->getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	window->setFullscreen(true);*/
+    // Uncomment the following line to put the game in full screen mode.
+    //window->setFullscreen(true);
 
-	// this kicks off the running of my app
-	// can be OF_WINDOW or OF_FULLSCREEN
-	// pass in width and height too:
+	// This kicks off the running of the app
 	ofRunApp(new ofApp());
-
 }
