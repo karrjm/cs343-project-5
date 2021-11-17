@@ -5,8 +5,8 @@
 #include "CellManager.h"
 #include "Camera.h"
 #include "CharacterPhysics.h"
-#include "ofxCubemap.cpp"
 #include "CameraMatrices.h"
+#include "ofxCubemap.h"
 
 class ofApp : public ofBaseApp
 {

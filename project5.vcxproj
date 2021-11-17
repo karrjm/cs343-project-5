@@ -186,6 +186,7 @@
     <ClCompile Include="src\calcTangents.cpp" />
     <ClCompile Include="src\CameraMatrices.cpp" />
     <ClCompile Include="src\CharacterPhysics.cpp" />
+    <ClCompile Include="src\ofxCubemap.cpp" />
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -196,6 +197,7 @@
     <ClInclude Include="src\CameraMatrices.h" />
     <ClInclude Include="src\CellManager.h" />
     <ClInclude Include="src\CharacterPhysics.h" />
+    <ClInclude Include="src\ofxCubemap.h" />
     <ClInclude Include="src\World.h" />
   </ItemGroup>
   <ItemGroup>

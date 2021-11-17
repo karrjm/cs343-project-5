@@ -70,7 +70,7 @@ void ofApp::setup()
     glEnable(GL_CULL_FACE);
 
     // Set sky color.
-    ofSetBackgroundColor(186, 186, 255);
+    // ofSetBackgroundColor(186, 186, 255);
 
     auto window { ofGetCurrentWindow() };
 
@@ -157,7 +157,9 @@ void ofApp::setup()
     cubeMesh.load("models/cube.ply");
 
     // load cubemap images
-    cubemap.load("textures/skybox_front.png", "textures/skybox_back.png", "textures/skybox_right.png", "textures/skybox_left.png", "textures/skybox_top.png", "textures/skybox_bottom.png");
+    cubemap.load("textures/skybox_front.png", "textures/skybox_back.png", 
+        "textures/skybox_right.png", "textures/skybox_left.png", 
+        "textures/skybox_top.png", "textures/skybox_bottom.png");
 }
 
 void ofApp::updateFPCamera(float dx, float dy)
@@ -235,9 +237,17 @@ void ofApp::draw()
     // Calculate view and projection matrices for the distant terrain.
     // Set the clipping plane to be 25% of the dividing plane to allow for sufficient overlap for a smooth transition.
     CameraMatrices camFarMatrices { fpCamera, aspect, midLODPlane * 0.25f, farPlaneDistant };
+    
+    float nearPlane = -world.gravity * 0.01f;
 
+    CameraMatrices camNearMatrices{ fpCamera, aspect, nearPlane, midLODPlane };
+    mat4 modelView{ camNearMatrices.getView() };
+    mat4 mvp{ camNearMatrices.getProj() * camNearMatrices.getView() };
     // Disable depth clamping for distant terrain
     glDisable(GL_DEPTH_CLAMP);
+
+    drawCube(camFarMatrices);
+
 
     // Distant terrain
     terrainShader.begin();
@@ -271,10 +281,9 @@ void ofApp::draw()
     // Clear depth buffer as our clipping planes have changed
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    float nearPlane = -world.gravity * 0.01f; // Define near plane relative to world gravity (which is also proportional to player character height)
+    ; // Define near plane relative to world gravity (which is also proportional to player character height)
 
     // Calculate view and projection matrices for the close terrain.
-    CameraMatrices camNearMatrices { fpCamera, aspect, nearPlane, midLODPlane };
 
     //// Debugging matrices:
     //midLODPlane = 100000; // to push back fog
@@ -283,9 +292,8 @@ void ofApp::draw()
     //    glm::translate(vec3(-10240, -8000, -16000)) };
     //mat4 modelView { view };
     //mat4 mvp { proj * view };
+    
 
-    mat4 modelView { camNearMatrices.getView() };
-    mat4 mvp { camNearMatrices.getProj() * camNearMatrices.getView() };
 
     // Near terrain
     terrainShader.begin();
@@ -319,16 +327,23 @@ void ofApp::draw()
     swordMesh.draw();
     shader.end();
 
-    drawCube(camNearMatrices);
+    
 }
 
 void ofApp::drawCube(const CameraMatrices& camMatrices)
 {
+    mat4 model{ translate(camMatrices.getCamera().position) };
+
+    glDisable(GL_CULL_FACE);
     skyboxShader.begin();
-    skyboxShader.setUniformMatrix4f("mvp", camMatrices.getProj() * camMatrices.getView());
+    glDepthFunc(GL_LEQUAL);// pass depth cest at far clipping plane
+    skyboxShader.setUniformMatrix4f("mvp", 
+        camMatrices.getProj() * mat4(mat3(camMatrices.getView())));
     skyboxShader.setUniformTexture("cubemap", cubemap.getTexture(), 0);
     cubeMesh.draw();
     skyboxShader.end();
+    glDepthFunc(GL_LESS);
+    glEnable(GL_CULL_FACE);
 }
 
 void ofApp::exit()
