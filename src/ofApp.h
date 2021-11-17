@@ -5,7 +5,8 @@
 #include "CellManager.h"
 #include "Camera.h"
 #include "CharacterPhysics.h"
-// #include "ofxXboxController.h"
+#include "ofxCubemap.cpp"
+#include "CameraMatrices.h"
 
 class ofApp : public ofBaseApp
 {
@@ -28,6 +29,26 @@ public:
     void gotMessage(ofMessage msg);
 
 private:
+
+    // sword mesh
+    ofMesh swordMesh;
+
+    ofImage swordTex;
+
+    ofShader shader;
+
+    ofShader skyboxShader;
+
+    // mesh for skybox
+    ofMesh cubeMesh;
+
+    // cubmap texture
+    ofxCubemap cubemap;
+
+    void drawCube(const CameraMatrices& camMatrices);
+
+    //---------------------------------------------------
+
     // The number of quads in each row and column of a single terrain cell for the close, high level-of-detail terrain.
     const static unsigned int NEAR_LOD_SIZE { 64 };
 
@@ -87,9 +108,6 @@ private:
 
     // The camera's "look" sensitivity when using the mouse.
     float camSensitivity { 0.01f };
-
-    // The camera's "look" sensitivity when using an Xbox controller.
-    float xboxCamSensitivity { 10.0f };
 
     // The character's walk speed (will be calculated based on the world's gravity).
     float characterWalkSpeed;

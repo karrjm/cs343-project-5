@@ -13,6 +13,10 @@ int main( )
     // Uncomment the following line to put the game in full screen mode.
     //window->setFullscreen(true);
 
+    /*auto window{ ofGetCurrentWindow() };
+    glfwSetInputMode(dynamic_pointer_cast<ofAppGLFWWindow>(window)->getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    window->setFullscreen(true);*/
+
 	// This kicks off the running of the app
 	ofRunApp(new ofApp());
 }

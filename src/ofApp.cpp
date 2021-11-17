@@ -42,6 +42,8 @@ void ofApp::reloadShaders()
 {
     terrainShader.load("shaders/mesh.vert", "shaders/directionalLight.frag");
     waterShader.load("shaders/mesh.vert", "shaders/water.frag");
+    shader.load("shaders/my.vert", "shaders/my.frag");
+    skyboxShader.load("shaders/skybox.vert", "shaders/skybox.frag");
 
     // Setup terrain shader uniform variables
     terrainShader.begin();
@@ -70,13 +72,10 @@ void ofApp::setup()
     // Set sky color.
     ofSetBackgroundColor(186, 186, 255);
 
-    // Initialize Xbox controller handle
-    //controller.setup();
-
     auto window { ofGetCurrentWindow() };
 
     // Uncomment the following line to let GLFW take control of the cursor so we have unlimited cursor space
-    //glfwSetInputMode(dynamic_pointer_cast<ofAppGLFWWindow>(window)->getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(dynamic_pointer_cast<ofAppGLFWWindow>(window)->getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Load the shaders for the first time.
     reloadShaders();
@@ -138,6 +137,27 @@ void ofApp::setup()
     // Set character movement parameters
     characterWalkSpeed = 10 * charHeight; // much faster than realism for efficiently moving around the map
     characterJumpSpeed = 10 * charHeight; // much higher than realism for efficiently moving around the map
+
+    // load sword model
+    swordMesh.load("models/sword.ply");
+
+    /*swordMesh.flatNormals();
+    for (size_t i{ 0 }; i < swordMesh.getNumNormals(); i++)
+    {
+        swordMesh.setNormal(i, -swordMesh.getNormal(i));
+    }*/
+
+    // load sword texture
+    swordTex.load("textures/sword_metallic.png");
+    swordTex.getTexture().setTextureWrap(GL_REPEAT, GL_REPEAT);
+    swordTex.getTexture().generateMipmap(); // create the mipmaps
+    swordTex.getTexture().setTextureMinMagFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+
+    // load skybox mesh
+    cubeMesh.load("models/cube.ply");
+
+    // load cubemap images
+    cubemap.load("textures/skybox_front.png", "textures/skybox_back.png", "textures/skybox_right.png", "textures/skybox_left.png", "textures/skybox_top.png", "textures/skybox_bottom.png");
 }
 
 void ofApp::updateFPCamera(float dx, float dy)
@@ -166,46 +186,19 @@ void ofApp::updateFPCamera(float dx, float dy)
 //--------------------------------------------------------------
 void ofApp::update()
 {
-    // Make sure that jump doesn't get spammed while the button is being held down.
-    //bool previousJumpState { controller.getGamepad(0).a };
-
-    //controller.update();
-
-    // Gamepad gamepad { controller.getGamepad(0) };
-
     mat3 headRotationMatrix { rotate(headAngle, vec3(0, 1, 0)) };
 
-    //if (gamepad.connected) // Controller detected; use Xbox controls 
-    //{
-    //    // Xbox controls: set character velocity from left stick.
-    //    character.setDesiredVelocity(headRotationMatrix * vec3(gamepad.thumbLX * characterWalkSpeed, 0, -gamepad.thumbLY * characterWalkSpeed));
+    // Mouse / keyboard controls: set character velocity from WASD
+    character.setDesiredVelocity(headRotationMatrix * vec3(wasdVelocity.x, 0, -wasdVelocity.y));
 
-    //    // Update camera direction; accounting for controller deadzone.
-    //    float camTurnMult { static_cast<float>(ofGetLastFrameTime()) * xboxCamSensitivity / 0.76f };
-    //    updateFPCamera(
-    //        -(gamepad.thumbRX - 0.24f * sign(gamepad.thumbRX)) * camTurnMult,
-    //        (gamepad.thumbRY - 0.24f * sign(gamepad.thumbRY)) * camTurnMult);
+    if (prevMouseX != 0 && prevMouseY != 0) // Skip if the cursor position was uninitialized previously.
+    {
+        // Update camera direction from mouse.
+        updateFPCamera(-camSensitivity * (ofGetMouseX() - prevMouseX), -camSensitivity * (ofGetMouseY() - prevMouseY));
+    }
 
-    //    // Jump when the A button is pressed.
-    //    if (!previousJumpState && gamepad.a)
-    //    {
-    //        character.jump(characterJumpSpeed);
-    //    }
-    //}
-    //else // No controller detected; fall back to mouse & keyboard
-    //{
-        // Mouse / keyboard controls: set character velocity from WASD
-        character.setDesiredVelocity(headRotationMatrix * vec3(wasdVelocity.x, 0, -wasdVelocity.y));
-
-        if (prevMouseX != 0 && prevMouseY != 0) // Skip if the cursor position was uninitialized previously.
-        {
-            // Update camera direction from mouse.
-            updateFPCamera(-camSensitivity * (ofGetMouseX() - prevMouseX), -camSensitivity * (ofGetMouseY() - prevMouseY));
-        }
-
-        prevMouseX = ofGetMouseX();
-        prevMouseY = ofGetMouseY();
-    //}
+    prevMouseX = ofGetMouseX();
+    prevMouseY = ofGetMouseY();
 
     if (needsReload)
     {
@@ -321,11 +314,25 @@ void ofApp::draw()
     waterPlane.draw();
 
     waterShader.end();
+
+    shader.begin();
+    swordMesh.draw();
+    shader.end();
+
+    drawCube(camNearMatrices);
+}
+
+void ofApp::drawCube(const CameraMatrices& camMatrices)
+{
+    skyboxShader.begin();
+    skyboxShader.setUniformMatrix4f("mvp", camMatrices.getProj() * camMatrices.getView());
+    skyboxShader.setUniformTexture("cubemap", cubemap.getTexture(), 0);
+    cubeMesh.draw();
+    skyboxShader.end();
 }
 
 void ofApp::exit()
 {
-    //controller.exit();
 }
 
 //--------------------------------------------------------------

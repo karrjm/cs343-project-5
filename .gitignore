@@ -50,3 +50,9 @@ addons.make
 .vs/Project5/v16/ipch/AutoPCH/b9f0dcce5e418863/OFXXBOXCONTROLLER.ipch
 .vs/Project5/v16/.suo
 .vs/Project5/v16/ipch/AutoPCH/cb3132c8945c56f8/MAIN.ipch
+*.ipch
+*.tlog
+*.tlog
+*.lastbuildstate
+*.filters
+*.vcxproj
