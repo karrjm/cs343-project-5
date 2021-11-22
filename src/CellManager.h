@@ -1,6 +1,7 @@
 #pragma once
 #include "ofMain.h"
 #include "World.h"
+#include"calcTangents.h"
 
 // A struct for maintaining the state of a single cell.
 struct Cell

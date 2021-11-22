@@ -2,6 +2,7 @@
 #include "CameraMatrices.h"
 #include "GLFW/glfw3.h"
 #include "buildTerrainMesh.h"
+#include "calcTangents.h"
 
 using namespace glm;
 
@@ -40,8 +41,8 @@ void buildPlaneMesh(float width, float depth, float height, ofMesh& planeMesh)
 
 void ofApp::reloadShaders()
 {
-    terrainShader.load("shaders/mesh.vert", "shaders/directionalLight.frag");
-    waterShader.load("shaders/mesh.vert", "shaders/water.frag");
+    terrainShader.load("shaders/terrain.vert", "shaders/terrain.frag");
+    waterShader.load("shaders/water.vert", "shaders/water.frag");
     shader.load("shaders/my.vert", "shaders/my.frag");
     skyboxShader.load("shaders/skybox.vert", "shaders/skybox.frag");
 
@@ -53,6 +54,7 @@ void ofApp::reloadShaders()
     terrainShader.setUniform1f("gammaInv", 1.0f / 2.2f);
     terrainShader.setUniform3f("meshColor", vec3(0.25, 0.5, 0.25));
     terrainShader.setUniformMatrix3f("normalMatrix", mat3());
+    
     terrainShader.end();
 
     needsReload = false;
@@ -75,7 +77,14 @@ void ofApp::setup()
     auto window { ofGetCurrentWindow() };
 
     // Uncomment the following line to let GLFW take control of the cursor so we have unlimited cursor space
-    glfwSetInputMode(dynamic_pointer_cast<ofAppGLFWWindow>(window)->getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // glfwSetInputMode(dynamic_pointer_cast<ofAppGLFWWindow>(window)->getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    
+    // load terrain normal and diffuse
+    terrainDiffuse.load("textures/aerial_grass_rock_diff_4k.png");
+    terrainDiffuse.getTexture().setTextureWrap(GL_REPEAT, GL_REPEAT);
+    terrainNormal.load("textures/aerial_grass_rock_nor_4k.png");
+    terrainNormal.getTexture().setTextureWrap(GL_REPEAT, GL_REPEAT);
+
 
     // Load the shaders for the first time.
     reloadShaders();
@@ -126,6 +135,9 @@ void ofApp::setup()
 
     // Create the water plane
     buildPlaneMesh(heightmap.getWidth() - 1, heightmap.getHeight() - 1, world.waterHeight, waterPlane);
+
+
+
 
     // Define character height relative to gravity
     float charHeight = -world.gravity * 0.1685f;
@@ -255,10 +267,14 @@ void ofApp::draw()
     terrainShader.setUniform1f("endFade", farPlaneDistant * 1.0f);
     terrainShader.setUniformMatrix4f("modelView", camFarMatrices.getView());
     terrainShader.setUniformMatrix4f("mvp", camFarMatrices.getProj()* camFarMatrices.getView());
+    terrainShader.setUniformTexture("diffuseTex", terrainDiffuse, 0);
+    terrainShader.setUniformTexture("normalTex", terrainNormal, 1);
 
     // Draw the distant terrain cells.
     farLODCellManager.drawActiveCells(fpCamera.position, farPlaneDistant);
 
+
+    
     terrainShader.end();
 
     // Enable depth clamping for water to cover up distant terrain regardless of depth values.
@@ -270,7 +286,7 @@ void ofApp::draw()
     waterShader.setUniform3f("meshColor", vec3(0.64, 0.73, 0.81));
     waterShader.setUniform1f("startFade", farPlaneDistant * 0.95f);
     waterShader.setUniform1f("endFade", farPlaneDistant * 1.0f);
-    waterShader.setUniformMatrix4f("modelView", camFarMatrices.getView());
+    //waterShader.setUniformMatrix4f("modelView", camFarMatrices.getView());
     waterShader.setUniformMatrix4f("mvp", camFarMatrices.getProj()* camFarMatrices.getView());
 
     // Draw the water plane.
@@ -299,11 +315,15 @@ void ofApp::draw()
     terrainShader.begin();
     terrainShader.setUniform1f("startFade", midLODPlane * 0.75f);
     terrainShader.setUniform1f("endFade", midLODPlane);
-    terrainShader.setUniformMatrix4f("modelView", modelView);
+    //terrainShader.setUniformMatrix4f("modelView", modelView);
     terrainShader.setUniformMatrix4f("mvp", mvp);
+    terrainShader.setUniformTexture("diffuseTex", terrainDiffuse, 0);
+    terrainShader.setUniformTexture("normalTex", terrainNormal, 1);
 
     // Draw the high level-of-detail cells.
     cellManager.drawActiveCells(fpCamera.position, midLODPlane);
+
+    //calcTangents(cellManager.);
 
     // Alternatively, draw the static terrain mesh if not using a cell manager.
     //staticTerrain.draw();

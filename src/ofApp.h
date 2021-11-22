@@ -70,6 +70,12 @@ private:
     // Shader for rendering water.
     ofShader waterShader {};
 
+    // terrain texture diffuse
+    ofImage terrainDiffuse;
+
+    // noemal map
+    ofImage terrainNormal;
+
     // The main game "world" that uses the heightmap.
     World world {};
 

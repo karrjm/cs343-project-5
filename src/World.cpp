@@ -1,5 +1,7 @@
 #include "World.h"
 #include "buildTerrainMesh.h"
+#include "calcTangents.h"
+
 
 using namespace glm;
 
@@ -14,6 +16,8 @@ void World::buildMeshForTerrainCell(ofMesh& terrainMesh, uvec2 startPos, uvec2 s
         // The scale parameter taken by buildTerrainMesh needs to be relative to the dimensions of the heightmap
         buildTerrainMesh(terrainMesh, *heightmap, startPos.x, startPos.y, startPos.x + size.x, startPos.y + size.y, 
             dimensions / vec3(heightmap->getWidth() - 1, 1, heightmap->getHeight() - 1));
+        
+
     }
 }
 
